@@ -2,8 +2,9 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>大阪 × 京都 5日行程｜28 Nov – 2 Dec 2026 · v4.1</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#c73e3a">
+<title>大阪 × 京都 5日行程｜28 Nov – 2 Dec 2026 · v5</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@600;700;900&display=swap" rel="stylesheet">
@@ -67,6 +68,8 @@ body{
   font-size:15px;
   line-height:1.7;
   -webkit-font-smoothing:antialiased;
+  max-width:100%;
+  overflow-x:clip;
 }
 h1,h2,h3,h4{font-family:var(--serif);line-height:1.35}
 a{color:var(--accent)}
@@ -631,6 +634,7 @@ footer{
   .tips-list li{padding:11px 12px}
   .rain-card{padding:12px 14px}
   footer{font-size:11px}
+  .exp-grid input,.exp-grid select,.exp-io textarea{font-size:16px}
 }
 @media (max-width:380px){
   .cd-card{min-width:48px}
@@ -759,7 +763,7 @@ footer{
 
 <!-- ============ OVERVIEW ============ -->
 <section id="overview">
-  <h2 class="sec-title"><span class="bar"></span>已核實資料 · 住宿與場地</h2>
+  <h2 class="sec-title"><span class="bar"></span>🏨 住宿與場地</h2>
   <p class="sec-sub">地址已核實，按鈕可直接開 Google Maps 或複製地址</p>
 
   <div class="stay-grid">
@@ -807,7 +811,6 @@ footer{
         </tbody>
       </table>
     </div>
-    <p class="tbl-note">📌 v2 更新：Day 1 傍晚以 20:00 晚餐結束（已移除「21:30 梅田藍天大廈空中庭園」項目）；Day 4 為全 trip 重心。✅ 已核實 2026 年曆：11/28 係<b>星期六</b>，全頁星期標籤已更正（原稿誤標為週五起算），星期一休館影響見 🌧️ 落雨後備。</p>
   </div>
 </section>
 
@@ -1552,7 +1555,7 @@ footer{
   </div>
 
   <div class="block">
-    <div class="sec-label">📒 開支記錄<span class="badge-pay" style="margin-right:8px">v4.1</span><span id="expMeta" style="font-family:var(--sans);font-size:12px;color:var(--muted);font-weight:600;margin-right:8px"></span><span class="mini-btns" style="margin:0 0 0 auto"><button class="map-btn" id="expSyncBtn" type="button" title="從雲端拉取最新記錄">⬇️ 同步</button><button class="map-btn" id="expUploadBtn" type="button" title="將本機記錄上傳到雲端">⬆️ 上傳記錄</button><button class="map-btn" id="copyLinkBtn" type="button">🔗 複製連結</button></span><span id="syncQuick" style="font-family:var(--sans);font-size:11px;color:var(--muted);margin-left:8px;white-space:nowrap"></span></div>
+    <div class="sec-label">📒 開支記錄<span class="badge-pay" style="margin-right:8px">v5</span><span id="expMeta" style="font-family:var(--sans);font-size:12px;color:var(--muted);font-weight:600;margin-right:8px"></span><span class="mini-btns" style="margin:0 0 0 auto"><button class="map-btn" id="expSyncBtn" type="button" title="從雲端拉取最新記錄">⬇️ 同步</button><button class="map-btn" id="expUploadBtn" type="button" title="將本機記錄上傳到雲端">⬆️ 上傳記錄</button><button class="map-btn" id="copyLinkBtn" type="button">🔗 複製連結</button></span><span id="syncQuick" style="font-family:var(--sans);font-size:11px;color:var(--muted);margin-left:8px;white-space:nowrap"></span></div>
     <div class="tbl-wrap" id="expTableWrap">
       <table>
         <thead><tr><th>日期</th><th>項目</th><th>金額</th><th>付款人</th><th>付款方法</th><th>人均</th><th>分帳</th><th></th></tr></thead>
@@ -1633,7 +1636,7 @@ footer{
 </main>
 
 <footer>
-  大阪 × 京都 5日行程 · 2026-11-28 → 2026-12-02 · 資料來源：itinerary-v2.md（已核實）· v4.1<br>
+  大阪 × 京都 5日行程 · 2026-11-28 → 2026-12-02 · 資料來源：itinerary-v2.md（已核實）· v5<br>
   📷 相片：Wikimedia Commons — Basile Morin（八坂通）、KENPEI（梅田夜景）、にぶさま（阪急9300系）、Josep M. Gracia（千本鳥居）、Domenico Convertini（二年坂）、Ken H.（KIX 黃昏）· CC BY-SA 授權 · 離線時自動顯示插畫<br>
   時間敏感班次：はるか 16:14 ｜ HX check-in 19:05截止 ｜ HX613 20:05起飛
 </footer>
