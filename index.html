@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>大阪 × 京都 5日行程｜28 Nov – 2 Dec 2026 · v4</title>
+<title>大阪 × 京都 5日行程｜28 Nov – 2 Dec 2026 · v4.1</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@600;700;900&display=swap" rel="stylesheet">
@@ -1517,7 +1517,7 @@ footer{
 <!-- ============ EXPENSE SPLIT ============ -->
 <section id="expense">
   <h2 class="sec-title"><span class="bar" style="background:var(--gold)"></span>🧾 開支分帳</h2>
-  <p class="sec-sub">夾份開支記低（JPY／HKD ＋ 付款方法），自動計人均、每人淨數同邊個找邊個 · 記錄自動同步到雲端 — 每次加入／刪除即刻推送，朋友開同一頁面或按「⬇️ 同步」就見到最新</p>
+  <p class="sec-sub">夾份開支記低（JPY／HKD ＋ 付款方法），自動計人均、每人淨數同邊個找邊個 · 記錄自動同步到雲端 — 你加入／刪除會自動推送；朋友開同一頁面按「⬇️ 同步」就見到最新（朋友唔使 token）</p>
 
   <div class="exp-card" id="expForm">
     <div class="exp-grid">
@@ -1552,7 +1552,7 @@ footer{
   </div>
 
   <div class="block">
-    <div class="sec-label">📒 開支記錄<span class="badge-pay" style="margin-right:8px">v4</span><span id="expMeta" style="font-family:var(--sans);font-size:12px;color:var(--muted);font-weight:600;margin-right:8px"></span><span class="mini-btns" style="margin:0 0 0 auto"><button class="map-btn" id="expSyncBtn" type="button" title="從雲端拉取最新記錄">⬇️ 同步</button><button class="map-btn" id="expUploadBtn" type="button" title="將本機記錄上傳到雲端">⬆️ 上傳記錄</button><button class="map-btn" id="copyLinkBtn" type="button">🔗 複製連結</button></span><span id="syncQuick" style="font-family:var(--sans);font-size:11px;color:var(--muted);margin-left:8px;white-space:nowrap"></span></div>
+    <div class="sec-label">📒 開支記錄<span class="badge-pay" style="margin-right:8px">v4.1</span><span id="expMeta" style="font-family:var(--sans);font-size:12px;color:var(--muted);font-weight:600;margin-right:8px"></span><span class="mini-btns" style="margin:0 0 0 auto"><button class="map-btn" id="expSyncBtn" type="button" title="從雲端拉取最新記錄">⬇️ 同步</button><button class="map-btn" id="expUploadBtn" type="button" title="將本機記錄上傳到雲端">⬆️ 上傳記錄</button><button class="map-btn" id="copyLinkBtn" type="button">🔗 複製連結</button></span><span id="syncQuick" style="font-family:var(--sans);font-size:11px;color:var(--muted);margin-left:8px;white-space:nowrap"></span></div>
     <div class="tbl-wrap" id="expTableWrap">
       <table>
         <thead><tr><th>日期</th><th>項目</th><th>金額</th><th>付款人</th><th>付款方法</th><th>人均</th><th>分帳</th><th></th></tr></thead>
@@ -1590,7 +1590,7 @@ footer{
       <span class="exp-msg" id="syncMsg"></span>
     </div>
     <p class="tbl-sub" id="syncStatus"></p>
-    <p class="tbl-sub">💡 加入／刪除開支會自動同步，呢度係手動後備＋設定。若錯誤顯示 <b>401 Token 失效</b>：去 <a href="https://github.com/settings/tokens/new?scopes=gist&description=Kyoto%20Trip%20Expenses" target="_blank" rel="noopener">github.com/settings/tokens/new?scopes=gist</a> 生成新 token 貼入上面欄位（只存你部機，唔會寫入 GitHub repo — 咁樣先唔會再被 GitHub 自動撤銷）。要自動推送嘅裝置，每部都要貼一次 token。</p>
+    <p class="tbl-sub">💡 只有<b>你（第一個推送嘅裝置）</b>先要喺上面貼 GitHub token — 之後 token 會隨記錄一齊上雲端，朋友按「⬇️ 同步」就自動攞到 token，跟住佢哋加入／刪除都會自動推送。⚠️ 即係話：攞到條 link 嘅人 = 有寫入權，請只傳俾同行朋友；trip 完去 GitHub 撤銷 token。若顯示 <b>401 Token 失效</b>：去 <a href="https://github.com/settings/tokens/new?scopes=gist&description=Kyoto%20Trip%20Expenses" target="_blank" rel="noopener">github.com/settings/tokens/new?scopes=gist</a> 生成新 token 貼入嚟。</p>
   </details>
 </section>
 
@@ -1633,7 +1633,7 @@ footer{
 </main>
 
 <footer>
-  大阪 × 京都 5日行程 · 2026-11-28 → 2026-12-02 · 資料來源：itinerary-v2.md（已核實）· v4<br>
+  大阪 × 京都 5日行程 · 2026-11-28 → 2026-12-02 · 資料來源：itinerary-v2.md（已核實）· v4.1<br>
   📷 相片：Wikimedia Commons — Basile Morin（八坂通）、KENPEI（梅田夜景）、にぶさま（阪急9300系）、Josep M. Gracia（千本鳥居）、Domenico Convertini（二年坂）、Ken H.（KIX 黃昏）· CC BY-SA 授權 · 離線時自動顯示插畫<br>
   時間敏感班次：はるか 16:14 ｜ HX check-in 19:05截止 ｜ HX613 20:05起飛
 </footer>
@@ -2108,6 +2108,10 @@ footer{
     var savedSyncCfg = JSON.parse(localStorage.getItem(SYNC_CFG_KEY) || '{}');
     if(savedSyncCfg){ syncCfg.gist = savedSyncCfg.gist || ''; syncCfg.token = savedSyncCfg.token || ''; }
   }catch(e){}
+  try{
+    var qGist = new URLSearchParams(window.location.search).get('gist');
+    if(qGist){ syncCfg.gist = qGist; }
+  }catch(e){}
   function gistId(){ return syncCfg.gist || SYNC_GIST; }
   function gistToken(){ return syncCfg.token || SYNC_TOKEN; }
   var lastSyncedRate = expRate;
@@ -2120,11 +2124,17 @@ footer{
   }
   function snapshot(){
     var files = {};
-    files[SYNC_FILE] = {content: JSON.stringify({app: 'kyoto-trip-v3', updatedAt: new Date().toISOString(), rate: expRate, items: expItems, tombs: expTombs, log: expLog})};
+    files[SYNC_FILE] = {content: JSON.stringify({app: 'kyoto-trip-v3', updatedAt: new Date().toISOString(), rate: expRate, items: expItems, tombs: expTombs, log: expLog, token: gistToken()})};
     return files;
   }
   function mergeCloud(obj){
     if(!obj || !Array.isArray(obj.items)) return false;
+    if(typeof obj.token === 'string' && obj.token && obj.token !== gistToken()){
+      syncCfg.token = obj.token;
+      try{ localStorage.setItem(SYNC_CFG_KEY, JSON.stringify({gist: syncCfg.gist, token: syncCfg.token})); }catch(e){}
+      if(syncTokenEl) syncTokenEl.value = syncCfg.token;
+      refreshUploadVisibility();
+    }
     var cloudTombs = Array.isArray(obj.tombs) ? obj.tombs.map(String) : [];
     var localRateChanged = (expRate !== lastSyncedRate);
     if(!localRateChanged && typeof obj.rate === 'number' && obj.rate > 0 && obj.rate !== expRate){
@@ -2163,9 +2173,14 @@ footer{
         var obj = null;
         if(f){ try{ obj = JSON.parse(f.content); }catch(e){} }
         mergeCloud(obj || {items: [], tombs: [], log: []});
+        if(!gistToken()){ syncStamp(); return null; }   /* 冇 token（朋友裝置）：唯讀模式，拉取完成 */
         return fetch('https://api.github.com/gists/' + gistId(), {method: 'PATCH', headers: syncHeaders(), body: JSON.stringify({files: snapshot()})});
       })
-      .then(function(r){ if(!r.ok){ var e = new Error(); e.status = r.status; throw e; } syncStamp(); return null; })
+      .then(function(r){
+        if(r === null) return null;
+        if(!r.ok){ var e = new Error(); e.status = r.status; throw e; }
+        syncStamp(); return null;
+      })
       .catch(function(e){ return e; })
       .then(function(err){
         syncBusy = false;
@@ -2227,10 +2242,16 @@ footer{
     syncCfg.gist = syncGistEl.value.trim();
     syncCfg.token = syncTokenEl.value.trim();
     try{ localStorage.setItem(SYNC_CFG_KEY, JSON.stringify({gist: syncCfg.gist, token: syncCfg.token})); }catch(e){}
+    refreshUploadVisibility();
     syncStatusRefresh();
   }
   syncGistEl.addEventListener('change', syncSaveInputs);
   syncTokenEl.addEventListener('change', syncSaveInputs);
+  function refreshUploadVisibility(){
+    var b = document.getElementById('expUploadBtn');
+    if(b) b.style.display = gistToken() ? '' : 'none';
+  }
+  refreshUploadVisibility();
   function syncQuickRefresh(err){
     var el = document.getElementById('syncQuick');
     if(!el) return;
@@ -2286,7 +2307,7 @@ footer{
   });
   document.getElementById('copyLinkBtn').addEventListener('click', function(){
     var btn = document.getElementById('copyLinkBtn');
-    var link = location.origin + location.pathname;
+    var link = location.origin + location.pathname + '?gist=' + gistId();
     var done = function(){ var o = btn.textContent; btn.textContent = '✓ 已複製'; setTimeout(function(){ btn.textContent = o; }, 2000); };
     if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(link).then(done, function(){ fallbackCopy(link, btn); }); }
     else{ fallbackCopy(link, btn); }
