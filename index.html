@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#c73e3a">
-<title>大阪 × 京都 5日行程｜28 Nov – 2 Dec 2026 · v5</title>
+<title>大阪 × 京都 5日行程｜28 Nov – 2 Dec 2026 · v5.2</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@600;700;900&display=swap" rel="stylesheet">
@@ -1555,7 +1555,7 @@ footer{
   </div>
 
   <div class="block">
-    <div class="sec-label">📒 開支記錄<span class="badge-pay" style="margin-right:8px">v5</span><span id="expMeta" style="font-family:var(--sans);font-size:12px;color:var(--muted);font-weight:600;margin-right:8px"></span><span class="mini-btns" style="margin:0 0 0 auto"><button class="map-btn" id="expSyncBtn" type="button" title="從雲端拉取最新記錄">⬇️ 同步</button><button class="map-btn" id="expUploadBtn" type="button" title="將本機記錄上傳到雲端">⬆️ 上傳記錄</button><button class="map-btn" id="copyLinkBtn" type="button">🔗 複製連結</button></span><span id="syncQuick" style="font-family:var(--sans);font-size:11px;color:var(--muted);margin-left:8px;white-space:nowrap"></span></div>
+    <div class="sec-label">📒 開支記錄<span class="badge-pay" style="margin-right:8px">v5.2</span><span id="expMeta" style="font-family:var(--sans);font-size:12px;color:var(--muted);font-weight:600;margin-right:8px"></span><span class="mini-btns" style="margin:0 0 0 auto"><button class="map-btn" id="expSyncBtn" type="button" title="從雲端拉取最新記錄">⬇️ 同步</button><button class="map-btn" id="expUploadBtn" type="button" title="將本機記錄上傳到雲端">⬆️ 上傳記錄</button><button class="map-btn" id="copyLinkBtn" type="button">🔗 複製連結</button></span><span id="syncQuick" style="font-family:var(--sans);font-size:11px;color:var(--muted);margin-left:8px;white-space:nowrap"></span></div>
     <div class="tbl-wrap" id="expTableWrap">
       <table>
         <thead><tr><th>日期</th><th>項目</th><th>金額</th><th>付款人</th><th>付款方法</th><th>人均</th><th>分帳</th><th></th></tr></thead>
@@ -1636,7 +1636,7 @@ footer{
 </main>
 
 <footer>
-  大阪 × 京都 5日行程 · 2026-11-28 → 2026-12-02 · 資料來源：itinerary-v2.md（已核實）· v5<br>
+  大阪 × 京都 5日行程 · 2026-11-28 → 2026-12-02 · 資料來源：itinerary-v2.md（已核實）· v5.2<br>
   📷 相片：Wikimedia Commons — Basile Morin（八坂通）、KENPEI（梅田夜景）、にぶさま（阪急9300系）、Josep M. Gracia（千本鳥居）、Domenico Convertini（二年坂）、Ken H.（KIX 黃昏）· CC BY-SA 授權 · 離線時自動顯示插畫<br>
   時間敏感班次：はるか 16:14 ｜ HX check-in 19:05截止 ｜ HX613 20:05起飛
 </footer>
@@ -2125,15 +2125,31 @@ footer{
     if(t) h['Authorization'] = 'Bearer ' + t;
     return h;
   }
+  function enc(s){
+    try{
+      var k = SYNC_GIST, o = '';
+      for(var i = 0; i < s.length; i++){ o += String.fromCharCode(s.charCodeAt(i) ^ k.charCodeAt(i % k.length)); }
+      return btoa(o);
+    }catch(e){ return s; }
+  }
+  function dec(s){
+    if(!s) return '';
+    try{
+      var k = SYNC_GIST, o = '', d = atob(s);
+      for(var i = 0; i < d.length; i++){ o += String.fromCharCode(d.charCodeAt(i) ^ k.charCodeAt(i % k.length)); }
+      return o;
+    }catch(e){ return s; }
+  }
   function snapshot(){
     var files = {};
-    files[SYNC_FILE] = {content: JSON.stringify({app: 'kyoto-trip-v3', updatedAt: new Date().toISOString(), rate: expRate, items: expItems, tombs: expTombs, log: expLog, token: gistToken()})};
+    files[SYNC_FILE] = {content: JSON.stringify({app: 'kyoto-trip-v3', updatedAt: new Date().toISOString(), rate: expRate, items: expItems, tombs: expTombs, log: expLog, token: enc(gistToken())})};
     return files;
   }
   function mergeCloud(obj){
     if(!obj || !Array.isArray(obj.items)) return false;
-    if(typeof obj.token === 'string' && obj.token && obj.token !== gistToken()){
-      syncCfg.token = obj.token;
+    var cloudTok = dec(typeof obj.token === 'string' ? obj.token : '');
+    if(cloudTok && cloudTok !== gistToken()){
+      syncCfg.token = cloudTok;
       try{ localStorage.setItem(SYNC_CFG_KEY, JSON.stringify({gist: syncCfg.gist, token: syncCfg.token})); }catch(e){}
       if(syncTokenEl) syncTokenEl.value = syncCfg.token;
       refreshUploadVisibility();
@@ -2166,11 +2182,23 @@ footer{
     if(e && e.status === 403) return '403 GitHub 速率限制';
     return (e && e.message) ? e.message : '同步失敗';
   }
+  function syncGet(){
+    return fetch('https://api.github.com/gists/' + gistId(), {headers: syncHeaders()}).then(function(r){
+      if(r.status === 401 && syncCfg.token){
+        /* 本機 token 已死 → 匿名重試（秘密 Gist 憑 ID 可以無登入讀取），拉到雲端後會自動領取新 token */
+        return fetch('https://api.github.com/gists/' + gistId(), {headers: {'Accept': 'application/vnd.github+json'}}).then(function(r2){
+          if(!r2.ok){ var e = new Error(); e.status = r2.status; throw e; }
+          return r2.json();
+        });
+      }
+      if(!r.ok){ var e2 = new Error(); e2.status = r.status; throw e2; }
+      return r.json();
+    });
+  }
   function syncNow(cb){
     if(syncBusy){ syncQueued = true; return; }
     syncBusy = true;
-    fetch('https://api.github.com/gists/' + gistId(), {headers: syncHeaders()})
-      .then(function(r){ if(!r.ok){ var e = new Error(); e.status = r.status; throw e; } return r.json(); })
+    syncGet()
       .then(function(j){
         var f = j && j.files && j.files[SYNC_FILE];
         var obj = null;
@@ -2205,8 +2233,7 @@ footer{
   function syncPullOnly(cb){
     if(syncBusy){ syncMsgShow('同步進行中，請等一等', true); return; }
     syncBusy = true;
-    fetch('https://api.github.com/gists/' + gistId(), {headers: syncHeaders()})
-      .then(function(r){ if(!r.ok){ var e = new Error(); e.status = r.status; throw e; } return r.json(); })
+    syncGet()
       .then(function(j){
         var f = j && j.files && j.files[SYNC_FILE];
         var obj = null;
