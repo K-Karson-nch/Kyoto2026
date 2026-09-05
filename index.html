@@ -539,6 +539,9 @@ tr.total-row td{
 }
 .log-txt{flex:1;min-width:0;color:var(--ink);word-break:break-word}
 
+.sync-card{border-color:color-mix(in srgb,var(--gold) 45%,transparent)}
+.sync-card .exp-grid{margin-top:10px}
+
 /* ---------- Footer ---------- */
 footer{
   border-top:1px solid var(--line);
@@ -1517,7 +1520,7 @@ footer{
 <!-- ============ EXPENSE SPLIT ============ -->
 <section id="expense">
   <h2 class="sec-title"><span class="bar" style="background:var(--gold)"></span>🧾 開支分帳</h2>
-  <p class="sec-sub">夾份開支記低（JPY／HKD ＋ 付款方法），自動計人均、每人淨數同邊個找邊個 · 資料存在本機瀏覽器，用「複製資料／匯入資料」同朋友同步</p>
+  <p class="sec-sub">夾份開支記低（JPY／HKD ＋ 付款方法），自動計人均、每人淨數同邊個找邊個 · 記錄存在本機瀏覽器；想朋友都同步睇到，用下面 ☁️ 雲端同步（GitHub Gist）</p>
 
   <div class="exp-card" id="expForm">
     <div class="exp-grid">
@@ -1548,6 +1551,32 @@ footer{
       <summary>📥 匯入朋友嘅資料</summary>
       <textarea id="expImportTxt" placeholder="貼上由「複製資料」產生嘅 JSON…" spellcheck="false"></textarea>
       <button class="map-btn" id="expImportBtn" type="button">匯入並取代</button>
+    </details>
+  </div>
+
+  <div class="exp-card sync-card" id="syncCard">
+    <div class="sec-label" style="color:var(--gold)">☁️ 雲端同步（GitHub Gist）— 朋友都睇到同一份記錄</div>
+    <p class="tbl-sub">記錄存去一個秘密 Gist，大家打開頁面自動拉取最新。<b>讀取唔使任何設定</b>；「建立／推送」需要 GitHub token（gist 權限），token 只存喺你自己部機，唔會寫入 repo。建議由一人（例如 Karson）負責記數＋推送，朋友只讀。</p>
+    <div class="exp-grid">
+      <label class="f-name">Gist ID<input id="syncGist" type="text" placeholder="建立後自動填上；或貼上朋友的 Gist ID"></label>
+      <label>GitHub Token（推送用，選填）<input id="syncToken" type="password" placeholder="ghp_…（classic token，gist scope）"></label>
+    </div>
+    <div class="exp-actions">
+      <button class="exp-add" id="syncCreate" type="button">☁️ 建立雲端空間</button>
+      <button class="map-btn" id="syncPush" type="button">⬆️ 推送到雲端</button>
+      <button class="map-btn" id="syncPull" type="button">⬇️ 從雲端拉取</button>
+      <button class="map-btn" id="syncCopyLink" type="button">🔗 複製朋友連結</button>
+      <span class="exp-msg" id="syncMsg"></span>
+    </div>
+    <p class="tbl-sub" id="syncStatus"></p>
+    <details class="exp-io">
+      <summary>📖 點樣設定（3 步）</summary>
+      <p class="tbl-sub" style="margin:8px 0">
+        ① 撳 <a href="https://github.com/settings/tokens/new?scopes=gist&description=Kyoto%20Trip%20Expenses" target="_blank" rel="noopener">github.com/settings/tokens/new?scopes=gist</a> 生成 token（已預選 gist 權限），複製 ghp_… 貼入上面 Token 欄。<br>
+        ② 撳「☁️ 建立雲端空間」→ 自動建立秘密 Gist，再「🔗 複製朋友連結」（連結已帶 ?gist=ID）傳俾朋友。<br>
+        ③ 之後每次加／刪數 →「⬆️ 推送到雲端」；朋友打開連結或重新整理就自動見到最新。<br>
+        🔒 提示：朋友唔使 token（只讀）；自動同步只會喺「冇填 token」嘅裝置上觸發，避免覆蓋記數人嘅本地修改。
+      </p>
     </details>
   </div>
 
@@ -2064,6 +2093,155 @@ footer{
       expLog = []; logSave(); renderLog();
     }
   });
+
+  /* ---- Cloud sync via GitHub Gist ---- */
+  var SYNC_KEY = 'trip-sync-cfg-v1', SYNC_STAMP = 'trip-sync-cloudstamp-v1', SYNC_FILE = 'trip-expenses.json';
+  var syncCfg = {gist: '', token: ''};
+  try{
+    var savedSync = JSON.parse(localStorage.getItem(SYNC_KEY) || '{}');
+    if(savedSync){ syncCfg.gist = savedSync.gist || ''; syncCfg.token = savedSync.token || ''; }
+  }catch(e){}
+  try{
+    var qGist = new URLSearchParams(window.location.search).get('gist');
+    if(qGist){ syncCfg.gist = qGist; }
+  }catch(e){}
+  function syncSaveCfg(){ try{ localStorage.setItem(SYNC_KEY, JSON.stringify({gist: syncCfg.gist, token: syncCfg.token})); }catch(e){} }
+  var syncGistEl = document.getElementById('syncGist'),
+      syncTokenEl = document.getElementById('syncToken'),
+      syncMsgEl = document.getElementById('syncMsg'),
+      syncStatusEl = document.getElementById('syncStatus');
+  syncGistEl.value = syncCfg.gist; syncTokenEl.value = syncCfg.token;
+  var syncMsgTimer = null;
+  function syncMsgShow(t, err){
+    syncMsgEl.textContent = t;
+    syncMsgEl.classList.toggle('err', !!err);
+    clearTimeout(syncMsgTimer);
+    syncMsgTimer = setTimeout(function(){ syncMsgEl.textContent = ''; }, 4000);
+  }
+  function syncStatusRefresh(){
+    var parts = [];
+    if(syncCfg.gist) parts.push('Gist: ' + syncCfg.gist.slice(0, 8) + '…');
+    var st = '';
+    try{ st = localStorage.getItem(SYNC_STAMP) || ''; }catch(e){}
+    if(st) parts.push('最後同步: ' + st);
+    if(!parts.length) parts.push('未設定 — 按「📖 點樣設定」開始');
+    syncStatusEl.textContent = parts.join(' · ');
+  }
+  function syncSaveInputs(){ syncCfg.gist = syncGistEl.value.trim(); syncCfg.token = syncTokenEl.value.trim(); syncSaveCfg(); syncStatusRefresh(); }
+  syncGistEl.addEventListener('change', syncSaveInputs);
+  syncTokenEl.addEventListener('change', syncSaveInputs);
+  function syncHeaders(auth){
+    var h = {'Accept': 'application/vnd.github+json'};
+    if(auth && syncCfg.token) h['Authorization'] = 'Bearer ' + syncCfg.token;
+    return h;
+  }
+  function syncStamp(){
+    var d = new Date();
+    var s = pad2(d.getMonth()+1) + '/' + pad2(d.getDate()) + ' ' + pad2(d.getHours()) + ':' + pad2(d.getMinutes());
+    try{ localStorage.setItem(SYNC_STAMP, s); }catch(e){}
+    syncStatusRefresh();
+  }
+  function syncFiles(){
+    var files = {};
+    files[SYNC_FILE] = {content: JSON.stringify({app: 'kyoto-trip-v2', updatedAt: new Date().toISOString(), rate: expRate, items: expItems, log: expLog})};
+    return files;
+  }
+  function applyCloud(obj, silent){
+    if(!obj || !Array.isArray(obj.items)){ syncMsgShow('雲端資料格式不正確', true); return false; }
+    if(typeof obj.rate === 'number' && obj.rate > 0){
+      expRate = obj.rate; expRateEl.value = expRate;
+      try{ localStorage.setItem(RATE_KEY, String(expRate)); }catch(e){}
+    }
+    var cloudItems = obj.items.map(expSanitize).filter(Boolean);
+    if(expItems.length > 0 && !silent && !confirm('拉取會以雲端記錄（' + cloudItems.length + ' 筆）取代你本機嘅 ' + expItems.length + ' 筆，繼續？')) return false;
+    expItems = cloudItems; expSave(); expRender();
+    if(Array.isArray(obj.log)){
+      var inc = obj.log.map(logSanitize).filter(Boolean);
+      var seen = {};
+      expLog.forEach(function(e){ seen[e.id] = true; });
+      inc.forEach(function(e){ if(!seen[e.id]) expLog.push(e); });
+      expLog = expLog.sort(function(a, b){ return b.t - a.t; }).slice(0, 200);
+      logSave();
+    }
+    renderLog();
+    return true;
+  }
+  function syncPull(silent){
+    if(!syncCfg.gist){ syncMsgShow('未設定 Gist ID', true); return; }
+    syncMsgEl.textContent = '⏳ 拉取中…';
+    fetch('https://api.github.com/gists/' + encodeURIComponent(syncCfg.gist), {headers: syncHeaders(false)})
+      .then(function(r){
+        if(r.status === 404) throw new Error('搵唔到 Gist（檢查 ID）');
+        if(r.status === 403) throw new Error('GitHub 速率限制，遲啲再試');
+        if(!r.ok) throw new Error('HTTP ' + r.status);
+        return r.json();
+      })
+      .then(function(j){
+        var f = j.files && j.files[SYNC_FILE];
+        if(!f) throw new Error('Gist 入面冇 ' + SYNC_FILE);
+        var obj;
+        try{ obj = JSON.parse(f.content); }catch(e){ throw new Error('雲端 JSON 解析失敗'); }
+        if(applyCloud(obj, silent)){
+          syncStamp();
+          syncMsgShow('✓ 已拉取雲端記錄' + (j.updated_at ? '（雲端更新於 ' + j.updated_at.slice(0, 16).replace('T', ' ') + ' UTC）' : ''));
+        } else {
+          syncMsgEl.textContent = '';
+        }
+      })
+      .catch(function(e){ syncMsgShow('拉取失敗：' + e.message, true); });
+  }
+  function syncPush(){
+    if(!syncCfg.gist){ syncMsgShow('未設定 Gist — 請先建立雲端空間', true); return; }
+    if(!syncCfg.token){ syncMsgShow('推送需要 GitHub Token（gist 權限）', true); return; }
+    syncMsgEl.textContent = '⏳ 推送中…';
+    fetch('https://api.github.com/gists/' + encodeURIComponent(syncCfg.gist), {method: 'PATCH', headers: syncHeaders(true), body: JSON.stringify({files: syncFiles()})})
+      .then(function(r){
+        if(r.status === 401) throw new Error('Token 無效或過期');
+        if(r.status === 404) throw new Error('搵唔到 Gist');
+        if(r.status === 403) throw new Error('GitHub 速率限制');
+        if(!r.ok) throw new Error('HTTP ' + r.status);
+        return r.json();
+      })
+      .then(function(){
+        syncStamp();
+        syncMsgShow('✓ 已推送到雲端 — 朋友重新整理就睇到');
+      })
+      .catch(function(e){ syncMsgShow('推送失敗：' + e.message, true); });
+  }
+  function syncCreate(){
+    if(!syncCfg.token){ syncMsgShow('建立需要 GitHub Token（gist 權限）', true); return; }
+    syncMsgEl.textContent = '⏳ 建立中…';
+    fetch('https://api.github.com/gists', {method: 'POST', headers: syncHeaders(true), body: JSON.stringify({description: 'Kyoto Trip 2026 分帳', public: false, files: syncFiles()})})
+      .then(function(r){
+        if(r.status === 401) throw new Error('Token 無效（需要 classic token + gist scope）');
+        if(r.status === 403) throw new Error('GitHub 速率限制');
+        if(!r.ok) throw new Error('HTTP ' + r.status);
+        return r.json();
+      })
+      .then(function(j){
+        if(!j || !j.id) throw new Error('回應異常');
+        syncCfg.gist = j.id;
+        syncGistEl.value = j.id;
+        syncSaveCfg();
+        syncStamp();
+        syncMsgShow('✅ 雲端空間已建立！跟住撳「🔗 複製朋友連結」');
+      })
+      .catch(function(e){ syncMsgShow('建立失敗：' + e.message, true); });
+  }
+  document.getElementById('syncCreate').addEventListener('click', syncCreate);
+  document.getElementById('syncPush').addEventListener('click', syncPush);
+  document.getElementById('syncPull').addEventListener('click', function(){ syncPull(false); });
+  document.getElementById('syncCopyLink').addEventListener('click', function(){
+    if(!syncCfg.gist){ syncMsgShow('先建立／設定 Gist', true); return; }
+    var link = location.origin + location.pathname + '?gist=' + syncCfg.gist;
+    var btn = document.getElementById('syncCopyLink');
+    var done = function(){ var o = btn.textContent; btn.textContent = '✓ 已複製'; setTimeout(function(){ btn.textContent = o; }, 2000); };
+    if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(link).then(done, function(){ fallbackCopy(link, btn); }); }
+    else{ fallbackCopy(link, btn); }
+  });
+  /* 自動拉取只喺「冇 token」嘅裝置（即朋友／只讀裝置）觸發，避免覆蓋記數人嘅本地修改 */
+  if(syncCfg.gist && !syncCfg.token){ syncPull(true); }
+  syncStatusRefresh();
 
   /* ---- Theme toggle: auto → light → dark ---- */
   var root = document.documentElement;
