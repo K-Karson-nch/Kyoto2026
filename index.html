@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>大阪 × 京都 5日行程｜28 Nov – 2 Dec 2026</title>
+<title>大阪 × 京都 5日行程｜28 Nov – 2 Dec 2026 · v4</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@600;700;900&display=swap" rel="stylesheet">
@@ -1552,7 +1552,7 @@ footer{
   </div>
 
   <div class="block">
-    <div class="sec-label">📒 開支記錄<span id="expMeta" style="font-family:var(--sans);font-size:12px;color:var(--muted);font-weight:600;margin-right:8px"></span><span class="mini-btns" style="margin:0 0 0 auto"><button class="map-btn" id="expSyncBtn" type="button">⬇️ 同步</button><button class="map-btn" id="copyLinkBtn" type="button">🔗 複製連結</button></span></div>
+    <div class="sec-label">📒 開支記錄<span class="badge-pay" style="margin-right:8px">v4</span><span id="expMeta" style="font-family:var(--sans);font-size:12px;color:var(--muted);font-weight:600;margin-right:8px"></span><span class="mini-btns" style="margin:0 0 0 auto"><button class="map-btn" id="expSyncBtn" type="button" title="從雲端拉取最新記錄">⬇️ 同步</button><button class="map-btn" id="expUploadBtn" type="button" title="將本機記錄上傳到雲端">⬆️ 上傳記錄</button><button class="map-btn" id="copyLinkBtn" type="button">🔗 複製連結</button></span><span id="syncQuick" style="font-family:var(--sans);font-size:11px;color:var(--muted);margin-left:8px;white-space:nowrap"></span></div>
     <div class="tbl-wrap" id="expTableWrap">
       <table>
         <thead><tr><th>日期</th><th>項目</th><th>金額</th><th>付款人</th><th>付款方法</th><th>人均</th><th>分帳</th><th></th></tr></thead>
@@ -1577,6 +1577,21 @@ footer{
     <p class="tbl-note" id="expLogEmpty">暫時未有修改記錄 — 加入／刪除開支後會喺度留底。</p>
     <div class="exp-clear-row"><button class="exp-del-link" id="expLogClear" type="button">清除歷史記錄</button></div>
   </div>
+
+  <details class="exp-io" id="syncCard" style="margin-top:16px">
+    <summary>☁️ 雲端同步設定（Gist · 一般用家唔使理，會自動同步）</summary>
+    <div class="exp-grid" style="margin-top:10px">
+      <label class="f-name">Gist ID<input id="syncGist" type="text"></label>
+      <label>GitHub Token（gist scope）<input id="syncToken" type="password" placeholder="ghp_…"></label>
+    </div>
+    <div class="exp-actions">
+      <button class="map-btn" id="syncPushBtn" type="button">⬆️ 上傳記錄到雲端</button>
+      <button class="map-btn" id="syncPullBtn" type="button">⬇️ 從雲端拉取</button>
+      <span class="exp-msg" id="syncMsg"></span>
+    </div>
+    <p class="tbl-sub" id="syncStatus"></p>
+    <p class="tbl-sub">💡 加入／刪除開支會自動同步，呢度係手動後備＋設定。若錯誤顯示 <b>401 Token 失效</b>：去 <a href="https://github.com/settings/tokens/new?scopes=gist&description=Kyoto%20Trip%20Expenses" target="_blank" rel="noopener">github.com/settings/tokens/new?scopes=gist</a> 生成新 token 貼入上面欄位（只存你部機，唔會寫入 GitHub repo — 咁樣先唔會再被 GitHub 自動撤銷）。要自動推送嘅裝置，每部都要貼一次 token。</p>
+  </details>
 </section>
 
 <!-- ============ RAIN ============ -->
@@ -1618,7 +1633,7 @@ footer{
 </main>
 
 <footer>
-  大阪 × 京都 5日行程 · 2026-11-28 → 2026-12-02 · 資料來源：itinerary-v2.md（已核實）· v3<br>
+  大阪 × 京都 5日行程 · 2026-11-28 → 2026-12-02 · 資料來源：itinerary-v2.md（已核實）· v4<br>
   📷 相片：Wikimedia Commons — Basile Morin（八坂通）、KENPEI（梅田夜景）、にぶさま（阪急9300系）、Josep M. Gracia（千本鳥居）、Domenico Convertini（二年坂）、Ken H.（KIX 黃昏）· CC BY-SA 授權 · 離線時自動顯示插畫<br>
   時間敏感班次：はるか 16:14 ｜ HX check-in 19:05截止 ｜ HX613 20:05起飛
 </footer>
@@ -2077,9 +2092,10 @@ footer{
 
   /* ---- Cloud sync (auto · GitHub Gist) ---- */
   var SYNC_GIST = 'cd42b719ede6c66dbeb62d4969894175';
-  var SYNC_TOKEN = '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';
+  var SYNC_TOKEN = '';   /* 內建 token 已被 GitHub 撤銷；喺下方 ☁️ 設定貼新 token（存本機，唔入 repo） */
   var SYNC_FILE = 'trip-expenses.json';
-  var TOMBS_KEY = 'trip-tombs-v1';
+  var SYNC_CFG_KEY = 'trip-sync-cfg-v1';
+  var SYNC_STAMP = 'trip-sync-cloudstamp-v1';
   var expTombs = [];
   try{
     var savedTombs = JSON.parse(localStorage.getItem(TOMBS_KEY) || '[]');
@@ -2087,10 +2103,25 @@ footer{
   }catch(e){}
   function tombsSave(){ try{ localStorage.setItem(TOMBS_KEY, JSON.stringify(expTombs.slice(0, 500))); }catch(e){} }
   function tomb(id){ if(id && expTombs.indexOf(id) < 0){ expTombs.push(id); tombsSave(); } }
+  var syncCfg = {gist: '', token: ''};
+  try{
+    var savedSyncCfg = JSON.parse(localStorage.getItem(SYNC_CFG_KEY) || '{}');
+    if(savedSyncCfg){ syncCfg.gist = savedSyncCfg.gist || ''; syncCfg.token = savedSyncCfg.token || ''; }
+  }catch(e){}
+  function gistId(){ return syncCfg.gist || SYNC_GIST; }
+  function gistToken(){ return syncCfg.token || SYNC_TOKEN; }
   var lastSyncedRate = expRate;
   var syncBusy = false, syncQueued = false;
   function syncHeaders(){
-    return {'Accept': 'application/vnd.github+json', 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SYNC_TOKEN};
+    var h = {'Accept': 'application/vnd.github+json', 'Content-Type': 'application/json'};
+    var t = gistToken();
+    if(t) h['Authorization'] = 'Bearer ' + t;
+    return h;
+  }
+  function snapshot(){
+    var files = {};
+    files[SYNC_FILE] = {content: JSON.stringify({app: 'kyoto-trip-v3', updatedAt: new Date().toISOString(), rate: expRate, items: expItems, tombs: expTombs, log: expLog})};
+    return files;
   }
   function mergeCloud(obj){
     if(!obj || !Array.isArray(obj.items)) return false;
@@ -2116,37 +2147,141 @@ footer{
     expRender(); renderLog();
     return true;
   }
+  function syncErrText(e){
+    if(e && e.status === 401) return '401 Token 失效 — 喺 ☁️ 雲端同步設定貼新 token';
+    if(e && e.status === 404) return '404 搵唔到 Gist';
+    if(e && e.status === 403) return '403 GitHub 速率限制';
+    return (e && e.message) ? e.message : '同步失敗';
+  }
   function syncNow(cb){
     if(syncBusy){ syncQueued = true; return; }
     syncBusy = true;
-    var finish = function(){
-      syncBusy = false;
-      if(cb){ try{ cb(); }catch(e){} }
-      if(syncQueued){ syncQueued = false; syncNow(); }
-    };
-    fetch('https://api.github.com/gists/' + SYNC_GIST, {headers: {'Accept': 'application/vnd.github+json', 'Authorization': 'Bearer ' + SYNC_TOKEN}})
-      .then(function(r){ if(!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+    fetch('https://api.github.com/gists/' + gistId(), {headers: syncHeaders()})
+      .then(function(r){ if(!r.ok){ var e = new Error(); e.status = r.status; throw e; } return r.json(); })
       .then(function(j){
         var f = j && j.files && j.files[SYNC_FILE];
         var obj = null;
         if(f){ try{ obj = JSON.parse(f.content); }catch(e){} }
         mergeCloud(obj || {items: [], tombs: [], log: []});
-        var files = {};
-        files[SYNC_FILE] = {content: JSON.stringify({app: 'kyoto-trip-v3', updatedAt: new Date().toISOString(), rate: expRate, items: expItems, tombs: expTombs, log: expLog})};
-        return fetch('https://api.github.com/gists/' + SYNC_GIST, {method: 'PATCH', headers: syncHeaders(), body: JSON.stringify({files: files})});
+        return fetch('https://api.github.com/gists/' + gistId(), {method: 'PATCH', headers: syncHeaders(), body: JSON.stringify({files: snapshot()})});
       })
-      .then(function(r){ if(!r.ok) throw new Error('HTTP ' + r.status); })
-      .catch(function(e){ try{ console.warn('[sync] ' + e.message); }catch(e2){} })
-      .then(finish);
+      .then(function(r){ if(!r.ok){ var e = new Error(); e.status = r.status; throw e; } syncStamp(); return null; })
+      .catch(function(e){ return e; })
+      .then(function(err){
+        syncBusy = false;
+        if(cb){ try{ cb(err || null); }catch(e2){} }
+        if(syncQueued){ syncQueued = false; syncNow(); }
+      });
+  }
+  function syncForceUpload(cb){
+    if(syncBusy){ syncMsgShow('同步進行中，請等一等', true); return; }
+    syncBusy = true;
+    fetch('https://api.github.com/gists/' + gistId(), {method: 'PATCH', headers: syncHeaders(), body: JSON.stringify({files: snapshot()})})
+      .then(function(r){ if(!r.ok){ var e = new Error(); e.status = r.status; throw e; } lastSyncedRate = expRate; syncStamp(); return null; })
+      .catch(function(e){ return e; })
+      .then(function(err){
+        syncBusy = false;
+        if(cb){ try{ cb(err || null); }catch(e2){} }
+      });
+  }
+  function syncPullOnly(cb){
+    if(syncBusy){ syncMsgShow('同步進行中，請等一等', true); return; }
+    syncBusy = true;
+    fetch('https://api.github.com/gists/' + gistId(), {headers: syncHeaders()})
+      .then(function(r){ if(!r.ok){ var e = new Error(); e.status = r.status; throw e; } return r.json(); })
+      .then(function(j){
+        var f = j && j.files && j.files[SYNC_FILE];
+        var obj = null;
+        if(f){ try{ obj = JSON.parse(f.content); }catch(e){} }
+        mergeCloud(obj || {items: [], tombs: [], log: []});
+        syncStamp();
+        return null;
+      })
+      .catch(function(e){ return e; })
+      .then(function(err){
+        syncBusy = false;
+        if(cb){ try{ cb(err || null); }catch(e2){} }
+      });
+  }
+  var syncGistEl = document.getElementById('syncGist'),
+      syncTokenEl = document.getElementById('syncToken'),
+      syncMsgEl = document.getElementById('syncMsg'),
+      syncStatusEl = document.getElementById('syncStatus');
+  syncGistEl.value = syncCfg.gist || SYNC_GIST;
+  syncTokenEl.value = syncCfg.token;
+  var syncMsgTimer = null;
+  function syncMsgShow(t, err){
+    if(!syncMsgEl) return;
+    syncMsgEl.textContent = t;
+    syncMsgEl.classList.toggle('err', !!err);
+    clearTimeout(syncMsgTimer);
+    syncMsgTimer = setTimeout(function(){ syncMsgEl.textContent = ''; }, 5000);
+  }
+  function syncStatusRefresh(){
+    if(!syncStatusEl) return;
+    var st = '';
+    try{ st = localStorage.getItem(SYNC_STAMP) || ''; }catch(e){}
+    syncStatusEl.textContent = 'Gist: ' + gistId().slice(0, 8) + '…' + (st ? (' · 最後成功同步: ' + st) : ' · 尚未成功同步');
+  }
+  function syncSaveInputs(){
+    syncCfg.gist = syncGistEl.value.trim();
+    syncCfg.token = syncTokenEl.value.trim();
+    try{ localStorage.setItem(SYNC_CFG_KEY, JSON.stringify({gist: syncCfg.gist, token: syncCfg.token})); }catch(e){}
+    syncStatusRefresh();
+  }
+  syncGistEl.addEventListener('change', syncSaveInputs);
+  syncTokenEl.addEventListener('change', syncSaveInputs);
+  function syncQuickRefresh(err){
+    var el = document.getElementById('syncQuick');
+    if(!el) return;
+    if(err){ el.textContent = '☁️ ❌ 同步失敗'; el.style.color = 'var(--accent)'; return; }
+    var st = '';
+    try{ st = localStorage.getItem(SYNC_STAMP) || ''; }catch(e){}
+    el.textContent = st ? ('☁️ 已同步 ' + st) : '☁️ 未同步';
+    el.style.color = 'var(--muted)';
+  }
+  function syncStamp(){
+    var d = new Date();
+    var s = pad2(d.getMonth()+1) + '/' + pad2(d.getDate()) + ' ' + pad2(d.getHours()) + ':' + pad2(d.getMinutes());
+    try{ localStorage.setItem(SYNC_STAMP, s); }catch(e){}
+    syncStatusRefresh();
+    syncQuickRefresh();
   }
   var expSyncBtn = document.getElementById('expSyncBtn');
   expSyncBtn.addEventListener('click', function(){
     var o = expSyncBtn.textContent;
     expSyncBtn.textContent = '⏳ 同步中…';
     expSyncBtn.disabled = true;
-    syncNow(function(){
-      expSyncBtn.textContent = '✓ 已同步';
-      setTimeout(function(){ expSyncBtn.textContent = o; expSyncBtn.disabled = false; }, 1200);
+    syncNow(function(err){
+      expSyncBtn.textContent = err ? '❌ 失敗' : '✓ 已同步';
+      if(err) expSyncBtn.title = syncErrText(err);
+      if(err){ syncQuickRefresh(err); if(err.status === 401){ var sc = document.getElementById('syncCard'); if(sc) sc.open = true; } }
+      setTimeout(function(){ expSyncBtn.textContent = o; expSyncBtn.disabled = false; expSyncBtn.title = '從雲端拉取最新記錄'; }, 1800);
+    });
+  });
+  var expUploadBtn = document.getElementById('expUploadBtn');
+  expUploadBtn.addEventListener('click', function(){
+    var o = expUploadBtn.textContent;
+    expUploadBtn.textContent = '⏳ 上傳中…';
+    expUploadBtn.disabled = true;
+    syncForceUpload(function(err){
+      expUploadBtn.textContent = err ? '❌ 上傳失敗' : '✓ 已上傳';
+      if(err) expUploadBtn.title = syncErrText(err);
+      if(err) syncMsgShow(syncErrText(err), true);
+      if(err){ syncQuickRefresh(err); if(err.status === 401){ var sc = document.getElementById('syncCard'); if(sc) sc.open = true; } }
+      setTimeout(function(){ expUploadBtn.textContent = o; expUploadBtn.disabled = false; }, 1800);
+    });
+  });
+  document.getElementById('syncPushBtn').addEventListener('click', function(){
+    syncForceUpload(function(err){
+      if(err){ syncMsgShow(syncErrText(err), true); }
+      else{ syncMsgShow('✓ 已上傳到雲端'); }
+    });
+  });
+  document.getElementById('syncPullBtn').addEventListener('click', function(){
+    syncPullOnly(function(err){
+      if(err){ syncMsgShow(syncErrText(err), true); }
+      else{ syncMsgShow('✓ 已從雲端拉取最新記錄'); }
     });
   });
   document.getElementById('copyLinkBtn').addEventListener('click', function(){
@@ -2156,8 +2291,9 @@ footer{
     if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(link).then(done, function(){ fallbackCopy(link, btn); }); }
     else{ fallbackCopy(link, btn); }
   });
+  syncStatusRefresh();
+  syncQuickRefresh();
   syncNow();
-
 
   /* ---- Theme toggle: auto → light → dark ---- */
   var root = document.documentElement;
